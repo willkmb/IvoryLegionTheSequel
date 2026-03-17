@@ -55,16 +55,19 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _ClipThresh: 0.35
+    - _ClipThresh: 0.6
     - _NoiseScale: 2
-    - _Occlusion: 0.24
+    - _Occlusion: 1.87
     - _QueueControl: 0
     - _QueueOffset: 0
     - _WindSpeed: 1.7
     - _WindStrength: 0.075
-    - _smooth: 0.45
+    - _smooth: -0.59
     m_Colors:
+    - _BottomCol: {r: 0.6792453, g: 0.2102174, b: 0.041651852, a: 1}
+    - _Height: {r: 2.74, g: 1.4, b: 0, a: 0}
     - _LeafCol: {r: 1, g: 0.4605209, b: 0.042452812, a: 1}
+    - _TopCol: {r: 0.9433962, g: 0.5005794, b: 0.16464934, a: 1}
     - _WindDirection: {r: 1, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
