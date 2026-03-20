@@ -27,10 +27,10 @@ public class BoatMove : MonoBehaviour
         while (moveToLocation.z - transform.position.z  > 0.1f)
         {
             float newZ = Mathf.Lerp(transform.position.z, moveToLocation.z, Time.deltaTime);
-            transform.position = new Vector3(transform.position.x, transform.position.y, newZ);
+            transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y, newZ);
         }
 
-        transform.position = moveToLocation;
+        transform.localPosition = moveToLocation;
         yield return null;
     }
 }
