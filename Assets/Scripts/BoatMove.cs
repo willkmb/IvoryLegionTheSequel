@@ -5,6 +5,8 @@ public class BoatMove : MonoBehaviour
 {
     [SerializeField] Vector3 moveToLocation;
     GameObject boat;
+    GameObject player;
+    bool isMoving = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -14,23 +16,30 @@ public class BoatMove : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (isMoving)
+        {
+            if (Mathf.Abs(boat.transform.localPosition.z - moveToLocation.z) > 0.1f)
+            {
+                boat.transform.localPosition = Vector3.MoveTowards(boat.transform.localPosition, moveToLocation, 0.01f);
+            }
+            else
+            {
+                transform.localPosition = moveToLocation;
+                player.transform.parent = null;
+            }
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        StartCoroutine("MoveBoat");
-    }
-
-    IEnumerator MoveBoat()
-    {
-        while (moveToLocation.z - transform.position.z  > 0.1f)
+        if (other.gameObject.CompareTag("Player"))
         {
-            float newZ = Mathf.Lerp(transform.position.z, moveToLocation.z, Time.deltaTime);
-            transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y, newZ);
+            player = other.gameObject;
+            this.GetComponent<BoxCollider>().enabled = false;
+            isMoving = true;
+            player.transform.parent = this.transform;
         }
 
-        transform.localPosition = moveToLocation;
-        yield return null;
     }
+
 }
