@@ -241,7 +241,7 @@ GameObject:
   - component: {fileID: 8333841}
   - component: {fileID: 8333840}
   m_Layer: 0
-  m_Name: Collider
+  m_Name: MovementManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2984,7 +2984,7 @@ GameObject:
   - component: {fileID: 621464912}
   - component: {fileID: 621464917}
   m_Layer: 0
-  m_Name: PlayerManager
+  m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

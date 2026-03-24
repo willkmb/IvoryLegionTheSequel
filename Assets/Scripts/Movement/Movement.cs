@@ -2,8 +2,9 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
-public class MovementScript : MonoBehaviour
+public class Movement : MonoBehaviour
 {
+    [HideInInspector] public int stateInt = 0;
     [Header("Movement")]
     [SerializeField] float speed = 5f;
     [SerializeField] float acceleration = 10f;
@@ -11,10 +12,25 @@ public class MovementScript : MonoBehaviour
     [SerializeField] float angleOffset = 0f;
 
     [Header("Turning")]
-    [SerializeField] float turnSmooth = 10f;
+    [SerializeField] float turnSpeed = 10f;
     [SerializeField] Transform pivot;
     [SerializeField] float pivotOffset = 0.5f;
     [SerializeField] float pivotSmooth = 5f;
+
+    [Header("Dash")]
+    [SerializeField] float duration = 1f;
+    [SerializeField] float dashMultiplier = 3f;
+    [SerializeField] float dashCooldown = 1f;
+    private bool isDashing = false;
+    private float dashRemaining = 0f;
+    private float dashRemainingState = 0f;
+
+    [Header("Sprint")]
+    [SerializeField] float sprintMultiplier = 1.5f;
+
+    [Header("RampAlign")]
+    [SerializeField] float alignSpeed = 10f;
+    private float rayLength = 2f;
 
     private Rigidbody rb;
     private Vector2 moveInput;
@@ -23,12 +39,16 @@ public class MovementScript : MonoBehaviour
     private PlayerManager playerInput;
     private Vector2 preMove;
     private float turnDir;
+    private InputAction dash;
+    private InputAction sprint;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         playerInput = GetComponentInParent<PlayerManager>();
         pivotStartPos = pivot.localPosition;
+        dash = playerInput.gameObject.GetComponent<PlayerInput>().actions["Dash"];
+        sprint = playerInput.gameObject.GetComponent<PlayerInput>().actions["Sprint"];
     }
 
     private void Update()
@@ -36,6 +56,8 @@ public class MovementScript : MonoBehaviour
         moveInput = playerInput.moveInput;
         newInput = new Vector3(moveInput.x, 0f, moveInput.y);
         newInput = Quaternion.Euler(0f, angleOffset, 0f) * newInput;
+        if (dash.triggered && !isDashing) { dashRemaining = duration; dashRemainingState = 0.3f; deceleration = 6; }
+        stateUpdate();
     }
 
     private void FixedUpdate()
@@ -43,12 +65,15 @@ public class MovementScript : MonoBehaviour
         Move();
         Rotate();
         pivotSlide();
+        dashing();
+        aligning();
     }
 
     void Move()
     {
         newInput = newInput.normalized;
         float curSpeed = speed;
+        if (sprint.IsPressed()) curSpeed *= sprintMultiplier;
 
         Vector3 curVel = rb.linearVelocity;
         Vector3 targetVel = new Vector3(newInput.x * curSpeed, rb.linearVelocity.y, newInput.z * curSpeed);
@@ -68,7 +93,7 @@ public class MovementScript : MonoBehaviour
     {
         if (newInput.sqrMagnitude < 0.001f) return;
         Quaternion targetRot = Quaternion.LookRotation(newInput); //gets the movement direction of the player and converts to quaternion
-        Quaternion newRot = Quaternion.Slerp(transform.rotation, targetRot, turnSmooth * Time.fixedDeltaTime); //lerp between current rotation and target rotation by smoothing value
+        Quaternion newRot = Quaternion.Slerp(transform.rotation, targetRot, turnSpeed * Time.fixedDeltaTime); //lerp between current rotation and target rotation by smoothing value
         Quaternion rotChange = newRot * Quaternion.Inverse(transform.rotation); //how much did rotation change this frame, determining the angle
         transform.RotateAround(pivot.position, Vector3.up, rotChange.eulerAngles.y);
     }
@@ -86,5 +111,36 @@ public class MovementScript : MonoBehaviour
         float targetOffset = turnDir * pivotOffset;
         Vector3 targetPos = pivotStartPos + new Vector3(targetOffset, 0f, 0f);
         pivot.localPosition = Vector3.Lerp(pivot.localPosition,targetPos,pivotSmooth * Time.deltaTime);
+    }
+
+    void dashing()
+    {
+        if (dashRemaining > 0f)
+        {
+            isDashing = true;
+            dashRemaining -= Time.fixedDeltaTime;
+            Vector3 dir = transform.forward * dashMultiplier;
+            rb.linearVelocity = dir;
+            Invoke("resetDash", dashCooldown);
+        }
+    }
+
+    void resetDash() { isDashing = false; }
+
+    void aligning()
+    {
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, rayLength))
+        {
+            Quaternion targetAlign = Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation;
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetAlign, alignSpeed * Time.deltaTime);
+        }
+    }
+
+    void stateUpdate()
+    {
+        if (dashRemainingState > 0f) { dashRemainingState -= Time.deltaTime; stateInt = 3; return; }
+        if (sprint.IsPressed() && newInput.sqrMagnitude > 0.001f) { stateInt = 2; return; }
+        if (newInput.sqrMagnitude > 0.001f) { stateInt = 1; return; }
+        stateInt = 0;
     }
 }
