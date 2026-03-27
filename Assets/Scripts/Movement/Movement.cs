@@ -73,7 +73,7 @@ public class Movement : MonoBehaviour
         moveInput = playerInput.moveInput;
         newInput = new Vector3(moveInput.x, 0f, moveInput.y);
         newInput = Quaternion.Euler(0f, angleOffset, 0f) * newInput;
-        if (dash.triggered && !isDashing) { dashRemaining = duration; dashRemainingState = 0.3f; deceleration = 6; }
+        if (dash.triggered && !isDashing && isMoving) { dashRemaining = duration; dashRemainingState = 0.3f; deceleration = 6; }
         stateUpdate();
     }
 
