@@ -10,6 +10,7 @@ public class Movement : MonoBehaviour
     [SerializeField] float acceleration = 10f;
     [SerializeField] float deceleration = 10f;
     [SerializeField] float angleOffset = 0f;
+    private bool isMoving = false;
 
     [Header("Turning")]
     [SerializeField] float turnSpeed = 10f;
@@ -99,9 +100,13 @@ public class Movement : MonoBehaviour
         if(newInput.sqrMagnitude > 0.001f)
         {
             curVel = Vector3.MoveTowards(curVel, targetVel, acceleration * Time.fixedDeltaTime);  //if moving move current velocity towards target velocity by acceleration value
-
+            isMoving = true;
         }
-        else { curVel = Vector3.MoveTowards(curVel, Vector3.zero, deceleration * Time.fixedDeltaTime); } //if not moving move current velocity towards zero by deceleration value
+        else 
+        {
+            curVel = Vector3.MoveTowards(curVel, Vector3.zero, deceleration * Time.fixedDeltaTime); //if not moving move current velocity towards zero by deceleration value
+            isMoving = false;
+        } 
 
         curVel.y = rb.linearVelocity.y; //reintroduce gravity
         rb.linearVelocity = curVel; //assign new velocity value to character
@@ -123,14 +128,12 @@ public class Movement : MonoBehaviour
 
     void HeadAndShoulderRotate()
     {
-        if (newInput.sqrMagnitude < 0.001f) return;
-        Vector3 playerForward = new Vector3(transform.forward.x, 0, transform.forward.z);
-        Vector3 inputDirectionChange = playerForward - newInput;
-        float inputDirClamped = Mathf.Clamp(inputDirectionChange.magnitude, 0, 1);
-        //Debug.Log(inputDirectionChange.magnitude);
+        Vector3 playerForward = new Vector3(transform.forward.x, 0, transform.forward.z); //gets 2D forward direction of player (disregards up and down rotation)
+        Vector3 inputDirectionChange = playerForward - newInput; //gets difference between player forward and input direction
+        float inputDirClamped = Mathf.Clamp(inputDirectionChange.magnitude, 0, 1); //clamps difference between 0 and 1 so head and shoulders dont rotate over max amount
 
         currentAngle = transform.eulerAngles;
-        if (currentAngle.y - oldAngle.y < -0.1f)
+        if (currentAngle.y - oldAngle.y < -0.1f) //if turning anticlockwise, turn head and shoulders to match
         {
             Quaternion shoulderRot = Quaternion.Euler(0, -maxShoulderTurn * inputDirClamped, 0);
 
@@ -139,7 +142,7 @@ public class Movement : MonoBehaviour
 
             print("Im spinning left on my Y axis");
         }
-        else if (currentAngle.y - oldAngle.y > 0.1f)
+        else if (currentAngle.y - oldAngle.y > 0.1f) //if turning clockwise, turn head and shoulders to match
         {
             Quaternion shoulderRot = Quaternion.Euler(0, maxShoulderTurn * inputDirClamped, 0);
 
@@ -148,14 +151,22 @@ public class Movement : MonoBehaviour
 
             print("Im spinning right on my Y axis");
         }
-        else
+        else //if going straight, straighten head and shoulders
         {
             shoulders.transform.localRotation = Quaternion.Slerp(shoulders.transform.localRotation, Quaternion.identity, Time.deltaTime * turnSpeed * shoulderTurnSpeed);
             head.transform.localRotation = Quaternion.Slerp(head.transform.localRotation, Quaternion.identity, Time.deltaTime * turnSpeed * headTurnSpeed);
 
             print("Im going straight");
         }
-            oldAngle = currentAngle;
+
+        if (newInput.magnitude == 0 && shoulders.transform.localRotation != Quaternion.identity && head.transform.localRotation != Quaternion.identity) 
+            //if no input and head and shoulders arent straight
+        {
+            shoulders.transform.localRotation = Quaternion.Slerp(shoulders.transform.localRotation, Quaternion.identity, Time.deltaTime * turnSpeed * shoulderTurnSpeed);
+            head.transform.localRotation = Quaternion.Slerp(head.transform.localRotation, Quaternion.identity, Time.deltaTime * turnSpeed * headTurnSpeed);
+        }
+        
+        oldAngle = currentAngle;
         
 
     }

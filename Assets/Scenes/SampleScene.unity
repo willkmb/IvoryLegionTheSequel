@@ -173,10 +173,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stateInt: 0
   speed: 3
-  acceleration: 12
+  acceleration: 8
   deceleration: 6
   angleOffset: 40
-  turnSpeed: 2
+  turnSpeed: 1.75
   pivot: {fileID: 1763683802}
   pivotOffset: 0.25
   pivotSmooth: 2
@@ -251,7 +251,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c625c97e40001e94aa7ef84c9d936d7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wobbleFrequencyMultiplier: 4
+  wobbleFrequencyMultiplier: 2
   wobbleIntensityMultiplier: 0.5
 --- !u!114 &8333845
 MonoBehaviour:
@@ -284,8 +284,8 @@ MonoBehaviour:
   intensityMultiplier: 0.5
   time: 0.15
   minImpact: 3.5
-  hapticMultiplier: 0
-  DashMultiplier: 0
+  hapticMultiplier: 0.5
+  DashMultiplier: 1
 --- !u!136 &8333847
 CapsuleCollider:
   m_ObjectHideFlags: 0
