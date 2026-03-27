@@ -29,6 +29,9 @@ public class Movement : MonoBehaviour
 
     private Vector3 currentAngle;
     private Vector3 oldAngle;
+    private Vector3 playerForward;
+    private Vector3 inputDirectionChange;
+    private float inputDirClamped;
 
 
     [Header("Dash")]
@@ -128,9 +131,9 @@ public class Movement : MonoBehaviour
 
     void HeadAndShoulderRotate()
     {
-        Vector3 playerForward = new Vector3(transform.forward.x, 0, transform.forward.z); //gets 2D forward direction of player (disregards up and down rotation)
-        Vector3 inputDirectionChange = playerForward - newInput; //gets difference between player forward and input direction
-        float inputDirClamped = Mathf.Clamp(inputDirectionChange.magnitude, 0, 1); //clamps difference between 0 and 1 so head and shoulders dont rotate over max amount
+        playerForward = new Vector3(transform.forward.x, 0, transform.forward.z); //gets 2D forward direction of player (disregards up and down rotation)
+        inputDirectionChange = playerForward - newInput; //gets difference between player forward and input direction
+        inputDirClamped = Mathf.Clamp(inputDirectionChange.magnitude, 0, 1); //clamps difference between 0 and 1 so head and shoulders dont rotate over max amount
 
         currentAngle = transform.eulerAngles;
         if (currentAngle.y - oldAngle.y < -0.1f) //if turning anticlockwise, turn head and shoulders to match
@@ -140,7 +143,7 @@ public class Movement : MonoBehaviour
             shoulders.transform.localRotation = Quaternion.Slerp(shoulders.transform.localRotation, shoulderRot, Time.deltaTime * turnSpeed * shoulderTurnSpeed);
             head.transform.localRotation = Quaternion.Slerp(head.transform.localRotation, shoulderRot, Time.deltaTime * turnSpeed * headTurnSpeed);
 
-            print("Im spinning left on my Y axis");
+            //print("Im spinning left on my Y axis");
         }
         else if (currentAngle.y - oldAngle.y > 0.1f) //if turning clockwise, turn head and shoulders to match
         {
@@ -149,18 +152,18 @@ public class Movement : MonoBehaviour
             shoulders.transform.localRotation = Quaternion.Slerp(shoulders.transform.localRotation, shoulderRot, Time.deltaTime * turnSpeed * shoulderTurnSpeed);
             head.transform.localRotation = Quaternion.Slerp(head.transform.localRotation, shoulderRot, Time.deltaTime * turnSpeed * headTurnSpeed);
 
-            print("Im spinning right on my Y axis");
+            //print("Im spinning right on my Y axis");
         }
         else //if going straight, straighten head and shoulders
         {
             shoulders.transform.localRotation = Quaternion.Slerp(shoulders.transform.localRotation, Quaternion.identity, Time.deltaTime * turnSpeed * shoulderTurnSpeed);
             head.transform.localRotation = Quaternion.Slerp(head.transform.localRotation, Quaternion.identity, Time.deltaTime * turnSpeed * headTurnSpeed);
 
-            print("Im going straight");
+            //print("Im going straight");
         }
 
         if (newInput.magnitude == 0 && shoulders.transform.localRotation != Quaternion.identity && head.transform.localRotation != Quaternion.identity) 
-            //if no input and head and shoulders arent straight
+            //if no input and head and shoulders arent straight, straighten head and shoulders
         {
             shoulders.transform.localRotation = Quaternion.Slerp(shoulders.transform.localRotation, Quaternion.identity, Time.deltaTime * turnSpeed * shoulderTurnSpeed);
             head.transform.localRotation = Quaternion.Slerp(head.transform.localRotation, Quaternion.identity, Time.deltaTime * turnSpeed * headTurnSpeed);
@@ -173,17 +176,33 @@ public class Movement : MonoBehaviour
 
     void pivotSlide()
     {
+        /*
+        float targetOffset = 0;
         if (moveInput.sqrMagnitude > 0.001f && preMove.sqrMagnitude > 0.001f)
         {
             float turn = Vector2.SignedAngle(preMove, moveInput);
             turnDir = turn < 0 ? 1f : -1f;
+            Debug.Log(turnDir);
         }
 
-        preMove = moveInput;
-
-        float targetOffset = turnDir * pivotOffset;
+        if (turnDir > 0)
+        {
+            targetOffset = pivotOffset * -inputDirClamped * turnDir;
+        }
+        else if (turnDir < 0)
+        {
+            targetOffset = pivotOffset * -inputDirClamped * turnDir;
+        }
+        else
+        {
+            targetOffset = 0;
+        }
         Vector3 targetPos = pivotStartPos + new Vector3(targetOffset, 0f, 0f);
         pivot.localPosition = Vector3.Lerp(pivot.localPosition,targetPos,pivotSmooth * Time.deltaTime);
+        
+        preMove = moveInput;
+        */
+
     }
 
     void dashing()
@@ -192,8 +211,9 @@ public class Movement : MonoBehaviour
         {
             isDashing = true;
             dashRemaining -= Time.fixedDeltaTime;
-            Vector3 dir = transform.forward * dashMultiplier;
-            rb.linearVelocity = dir;
+            //Vector3 dir = transform.forward * dashMultiplier;
+            Vector3 dir = (newInput + transform.forward) * 0.5f * dashMultiplier; //gets midpoint of forward direction and input direction
+            rb.linearVelocity = dir; 
             Invoke("resetDash", dashCooldown);
         }
     }
