@@ -17,6 +17,16 @@ public class Movement : MonoBehaviour
     [SerializeField] float pivotOffset = 0.5f;
     [SerializeField] float pivotSmooth = 5f;
 
+    [Header("Head and Shoulder Turning")]
+    [SerializeField] GameObject head;
+    [SerializeField] float maxHeadTurn;
+
+    [SerializeField] GameObject shoulders;
+    [SerializeField] float maxShoulderTurn;
+    private Vector3 currentAngle;
+    private Vector3 oldAngle;
+
+
     [Header("Dash")]
     [SerializeField] float duration = 1f;
     [SerializeField] float dashMultiplier = 3f;
@@ -49,6 +59,9 @@ public class Movement : MonoBehaviour
         pivotStartPos = pivot.localPosition;
         dash = playerInput.gameObject.GetComponent<PlayerInput>().actions["Dash"];
         sprint = playerInput.gameObject.GetComponent<PlayerInput>().actions["Sprint"];
+
+        currentAngle = transform.localEulerAngles;
+        oldAngle = currentAngle;
     }
 
     private void Update()
@@ -64,6 +77,8 @@ public class Movement : MonoBehaviour
     {
         Move();
         Rotate();
+        //HeadRotate();
+        ShoulderRotate();
         pivotSlide();
         dashing();
         aligning();
@@ -96,6 +111,43 @@ public class Movement : MonoBehaviour
         Quaternion newRot = Quaternion.Slerp(transform.rotation, targetRot, turnSpeed * Time.fixedDeltaTime); //lerp between current rotation and target rotation by smoothing value
         Quaternion rotChange = newRot * Quaternion.Inverse(transform.rotation); //how much did rotation change this frame, determining the angle
         transform.RotateAround(pivot.position, Vector3.up, rotChange.eulerAngles.y);
+    }
+
+    void HeadRotate()
+    {
+
+    }
+
+    void ShoulderRotate()
+    {
+        if (newInput.sqrMagnitude < 0.001f) return;
+        Vector3 playerForward = new Vector3(0, transform.forward.y, transform.forward.z);
+        float inputDirectionChange = newInput.magnitude - playerForward.magnitude;
+        //Debug.Log(inputDirectionChange.magnitude);
+
+        currentAngle = transform.eulerAngles;
+        if (currentAngle.y < oldAngle.y) 
+        {
+            Quaternion shoulderRot = Quaternion.Euler(0, -maxShoulderTurn * inputDirectionChange, 0);
+
+            shoulders.transform.localRotation = Quaternion.Slerp(shoulders.transform.localRotation, shoulderRot, Time.deltaTime * turnSpeed);
+
+            print("Im spinning left on my Y axis"); 
+
+        }
+        else if (currentAngle.y > oldAngle.y) 
+        {
+            Quaternion shoulderRot = Quaternion.Euler(0, maxShoulderTurn * inputDirectionChange, 0);
+
+            shoulders.transform.localRotation = Quaternion.Slerp(shoulders.transform.localRotation, shoulderRot, Time.deltaTime * turnSpeed);
+
+            print("Im spinning right on my Y axis"); 
+        }
+        Debug.Log(oldAngle.magnitude);
+        Debug.Log(currentAngle.magnitude);
+        oldAngle = currentAngle;
+        
+
     }
 
     void pivotSlide()
