@@ -20,9 +20,12 @@ public class Movement : MonoBehaviour
     [Header("Head and Shoulder Turning")]
     [SerializeField] GameObject head;
     [SerializeField] float maxHeadTurn;
+    [SerializeField] float headTurnSpeed;
 
     [SerializeField] GameObject shoulders;
     [SerializeField] float maxShoulderTurn;
+    [SerializeField] float shoulderTurnSpeed;
+
     private Vector3 currentAngle;
     private Vector3 oldAngle;
 
@@ -78,7 +81,7 @@ public class Movement : MonoBehaviour
         Move();
         Rotate();
         //HeadRotate();
-        ShoulderRotate();
+        HeadAndShoulderRotate();
         pivotSlide();
         dashing();
         aligning();
@@ -113,39 +116,46 @@ public class Movement : MonoBehaviour
         transform.RotateAround(pivot.position, Vector3.up, rotChange.eulerAngles.y);
     }
 
-    void HeadRotate()
+    void HeadLook()
     {
 
     }
 
-    void ShoulderRotate()
+    void HeadAndShoulderRotate()
     {
         if (newInput.sqrMagnitude < 0.001f) return;
-        Vector3 playerForward = new Vector3(0, transform.forward.y, transform.forward.z);
-        float inputDirectionChange = newInput.magnitude - playerForward.magnitude;
+        Vector3 playerForward = new Vector3(transform.forward.x, 0, transform.forward.z);
+        Vector3 inputDirectionChange = playerForward - newInput;
+        float inputDirClamped = Mathf.Clamp(inputDirectionChange.magnitude, 0, 1);
         //Debug.Log(inputDirectionChange.magnitude);
 
         currentAngle = transform.eulerAngles;
-        if (currentAngle.y < oldAngle.y) 
+        if (currentAngle.y - oldAngle.y < -0.1f)
         {
-            Quaternion shoulderRot = Quaternion.Euler(0, -maxShoulderTurn * inputDirectionChange, 0);
+            Quaternion shoulderRot = Quaternion.Euler(0, -maxShoulderTurn * inputDirClamped, 0);
 
-            shoulders.transform.localRotation = Quaternion.Slerp(shoulders.transform.localRotation, shoulderRot, Time.deltaTime * turnSpeed);
+            shoulders.transform.localRotation = Quaternion.Slerp(shoulders.transform.localRotation, shoulderRot, Time.deltaTime * turnSpeed * shoulderTurnSpeed);
+            head.transform.localRotation = Quaternion.Slerp(head.transform.localRotation, shoulderRot, Time.deltaTime * turnSpeed * headTurnSpeed);
 
-            print("Im spinning left on my Y axis"); 
-
+            print("Im spinning left on my Y axis");
         }
-        else if (currentAngle.y > oldAngle.y) 
+        else if (currentAngle.y - oldAngle.y > 0.1f)
         {
-            Quaternion shoulderRot = Quaternion.Euler(0, maxShoulderTurn * inputDirectionChange, 0);
+            Quaternion shoulderRot = Quaternion.Euler(0, maxShoulderTurn * inputDirClamped, 0);
 
-            shoulders.transform.localRotation = Quaternion.Slerp(shoulders.transform.localRotation, shoulderRot, Time.deltaTime * turnSpeed);
+            shoulders.transform.localRotation = Quaternion.Slerp(shoulders.transform.localRotation, shoulderRot, Time.deltaTime * turnSpeed * shoulderTurnSpeed);
+            head.transform.localRotation = Quaternion.Slerp(head.transform.localRotation, shoulderRot, Time.deltaTime * turnSpeed * headTurnSpeed);
 
-            print("Im spinning right on my Y axis"); 
+            print("Im spinning right on my Y axis");
         }
-        Debug.Log(oldAngle.magnitude);
-        Debug.Log(currentAngle.magnitude);
-        oldAngle = currentAngle;
+        else
+        {
+            shoulders.transform.localRotation = Quaternion.Slerp(shoulders.transform.localRotation, Quaternion.identity, Time.deltaTime * turnSpeed * shoulderTurnSpeed);
+            head.transform.localRotation = Quaternion.Slerp(head.transform.localRotation, Quaternion.identity, Time.deltaTime * turnSpeed * headTurnSpeed);
+
+            print("Im going straight");
+        }
+            oldAngle = currentAngle;
         
 
     }
