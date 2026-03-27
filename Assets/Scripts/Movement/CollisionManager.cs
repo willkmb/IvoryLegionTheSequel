@@ -103,9 +103,10 @@ public class CollisionManager : MonoBehaviour
     IEnumerator dashHaptic()
     {
         dashing = true;
-        Gamepad.current.SetMotorSpeeds(DashMultiplier, DashMultiplier);
+        float intensity = rb.linearVelocity.magnitude * DashMultiplier;
+        Gamepad.current.SetMotorSpeeds(intensity / 2, intensity);
         yield return new WaitForSeconds(0.15f);
-        Gamepad.current?.SetMotorSpeeds(0, 0);
+        Gamepad.current.SetMotorSpeeds(0, 0);
         yield return new WaitForSeconds(0.85f);
         dashing = false;
     }
@@ -114,9 +115,9 @@ public class CollisionManager : MonoBehaviour
     {
         collided = true;
         float intensity = rb.linearVelocity.magnitude * colIntensity;
-        Gamepad.current.SetMotorSpeeds(intensity, intensity);
+        Gamepad.current.SetMotorSpeeds(intensity / 2, intensity);
         yield return new WaitForSeconds(0.15f);
-        Gamepad.current?.SetMotorSpeeds(0, 0);
+        Gamepad.current.SetMotorSpeeds(0, 0);
         collided = false;
     }
 }

@@ -24,7 +24,7 @@ public class Movement : MonoBehaviour
 
     [Header("Head and Shoulder Turning")]
     [SerializeField] GameObject head;
-    [SerializeField] float maxHeadTurn;
+    public float maxHeadTurn;
     [SerializeField] float headTurnSpeed;
     [SerializeField] GameObject shoulders;
     [SerializeField] float maxShoulderTurn;
@@ -54,7 +54,6 @@ public class Movement : MonoBehaviour
 
     private Rigidbody rb;
     private Vector2 moveInput;
-    private Vector2 lookInput;
     private Vector3 newInput;
     private Vector3 pivotStartPos;
     private PlayerManager playerInput;
@@ -81,7 +80,6 @@ public class Movement : MonoBehaviour
     private void Update()
     {
         moveInput = playerInput.moveInput;
-        moveInput = playerInput.lookInput;
         newInput = new Vector3(moveInput.x, 0f, moveInput.y);
         newInput = Quaternion.Euler(0f, angleOffset, 0f) * newInput;
         if (dash.triggered && !isDashing && isMoving) { dashRemaining = duration; dashRemainingState = 0.3f; deceleration = 6; }
@@ -133,11 +131,6 @@ public class Movement : MonoBehaviour
 
     }
 
-    void HeadLook()
-    {
-
-    }
-
     void HeadAndShoulderRotate()
     {
         playerForward = new Vector3(transform.forward.x, 0, transform.forward.z); //gets 2D forward direction of player (disregards up and down rotation)
@@ -146,24 +139,35 @@ public class Movement : MonoBehaviour
 
         currentAngle = transform.localEulerAngles;
         Quaternion shoulderRot = Quaternion.identity;
+        Quaternion headRot = Quaternion.identity;
 
         //if turning anticlockwise, turn head and shoulders to match
-        if (currentAngle.y - oldAngle.y < -0.1f) { shoulderRot = Quaternion.Euler(0, -maxShoulderTurn * inputDirClamped, 0); }
+        if (currentAngle.y - oldAngle.y < -0.1f) 
+        { 
+            shoulderRot = Quaternion.Euler(0, -maxShoulderTurn * inputDirClamped, 0); 
+            headRot = Quaternion.Euler(0, -maxHeadTurn * inputDirClamped, 0); 
+
+        }
         
         //if turning clockwise, turn head and shoulders to match
-        else if (currentAngle.y - oldAngle.y > 0.1f) { shoulderRot = Quaternion.Euler(0, maxShoulderTurn * inputDirClamped, 0); }
+        else if (currentAngle.y - oldAngle.y > 0.1f) 
+        { 
+            shoulderRot = Quaternion.Euler(0, maxShoulderTurn * inputDirClamped, 0); 
+            headRot = Quaternion.Euler(0, maxHeadTurn * inputDirClamped, 0); 
+        }
         
         //if going straight, straighten head and shoulders
-        else { shoulderRot = Quaternion.identity; }
+        else { shoulderRot = Quaternion.identity; headRot = Quaternion.identity; }
 
         //if no input and head and shoulders arent straight, straighten head and shoulders
         if (newInput.magnitude == 0 && shoulders.transform.localRotation != Quaternion.identity && head.transform.localRotation != Quaternion.identity)
         {
             shoulderRot = Quaternion.identity;
+            headRot = Quaternion.identity;
         }
 
         shoulders.transform.localRotation = Quaternion.Slerp(shoulders.transform.localRotation, shoulderRot, Time.deltaTime * turnSpeed * shoulderTurnSpeed);
-        head.transform.localRotation = Quaternion.Slerp(head.transform.localRotation, shoulderRot, Time.deltaTime * turnSpeed * headTurnSpeed);
+        head.transform.localRotation = Quaternion.Slerp(head.transform.localRotation, headRot, Time.deltaTime * turnSpeed * headTurnSpeed);
         oldAngle = currentAngle;
     }
 
@@ -187,27 +191,27 @@ public class Movement : MonoBehaviour
         if (currentAnglePivot.y - oldAnglePivot.y < -0.1f) //if turning anticlockwise, move pivot left
         {
             Quaternion pivotRot = Quaternion.Euler(0, -90 * inputDirClamped, 0);
-            pivotParent.localRotation = Quaternion.Slerp(pivotParent.localRotation, pivotRot, Time.deltaTime * turnSpeed);
+            pivotParent.localRotation = Quaternion.Slerp(pivotParent.localRotation, pivotRot, Time.deltaTime * pivotSmooth);
 
             //print("Im spinning left on my Y axis");
         }
         else if (currentAnglePivot.y - oldAnglePivot.y > 0.1f) //if turning clockwise,  move pivot right
         {
             Quaternion pivotRot = Quaternion.Euler(0, 90 * inputDirClamped, 0);
-            pivotParent.localRotation = Quaternion.Slerp(pivotParent.localRotation, pivotRot, Time.deltaTime * turnSpeed * shoulderTurnSpeed);
+            pivotParent.localRotation = Quaternion.Slerp(pivotParent.localRotation, pivotRot, Time.deltaTime * pivotSmooth);
 
             //print("Im spinning right on my Y axis");
         }
         else //if going straight, centre pivot
         {
-            pivotParent.localRotation = Quaternion.Slerp(pivotParent.localRotation, Quaternion.identity, Time.deltaTime * turnSpeed * shoulderTurnSpeed);
+            pivotParent.localRotation = Quaternion.Slerp(pivotParent.localRotation, Quaternion.identity, Time.deltaTime * pivotSmooth);
 
             //print("Im going straight");
         }
 
         if (newInput.magnitude == 0 && pivotParent.localRotation != Quaternion.identity) //if no input and pivot not centred, centre pivot
         {
-            pivotParent.localRotation = Quaternion.Slerp(pivotParent.localRotation, Quaternion.identity, Time.deltaTime * turnSpeed * shoulderTurnSpeed);
+            pivotParent.localRotation = Quaternion.Slerp(pivotParent.localRotation, Quaternion.identity, Time.deltaTime * pivotSmooth);
         }
 
         oldAnglePivot = currentAngle;
@@ -234,7 +238,6 @@ public class Movement : MonoBehaviour
         if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, rayLength))
         {
             Quaternion targetAlign = Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation;
-            Debug.Log(hit.normal);
             transform.rotation = Quaternion.Lerp(transform.rotation, targetAlign, alignSpeed * Time.deltaTime);
             //acceleration = baseAcceleration * hit.normal.y; //<- experimenting with having less acceleration while going up slopes
         }
