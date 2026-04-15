@@ -47,7 +47,7 @@ public class NpcCameraScript : MonoBehaviour
 
         Animation anim = diag.GetComponent<Animation>();
 
-        if (active && input.actions["Talk"].triggered && !isSpeaking)
+        if (active && input.actions.FindAction("Player/Talk").triggered && !isSpeaking)
         {
             virtualCam.LookAt = this.transform;
             anim["DiagBoxAnimIn"].time = 0f;
