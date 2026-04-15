@@ -53,6 +53,7 @@ public class Movement : MonoBehaviour
     [Header("RampAlign")]
     [SerializeField] float alignSpeed = 10f;
     [SerializeField] float maxSlopeAngle;
+    [SerializeField] LayerMask groundLayer;
     private float rayLength = 2f;
 
     private Rigidbody rb;
@@ -262,7 +263,7 @@ public class Movement : MonoBehaviour
 
     void aligning() 
     { 
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, rayLength)) 
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, rayLength, groundLayer)) 
         { 
             Quaternion targetAlign = Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation; 
             transform.rotation = Quaternion.Lerp(transform.rotation, targetAlign, alignSpeed * Time.deltaTime); 
