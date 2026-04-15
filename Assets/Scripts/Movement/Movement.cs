@@ -267,7 +267,13 @@ public class Movement : MonoBehaviour
             Quaternion targetAlign = Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation; 
             transform.rotation = Quaternion.Lerp(transform.rotation, targetAlign, alignSpeed * Time.deltaTime); 
             //acceleration = baseAcceleration * hit.normal.y; //<- experimenting with having less acceleration while going up slopes
-        } 
+        }
+        else
+        {
+            Vector3 currentEuler = transform.eulerAngles;
+            Quaternion targetRot = Quaternion.Euler(0f, currentEuler.y, currentEuler.z);
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, 0.5f * Time.deltaTime);
+        }
     }
 
     void stateUpdate()
