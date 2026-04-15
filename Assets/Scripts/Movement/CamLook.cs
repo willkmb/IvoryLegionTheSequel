@@ -39,13 +39,19 @@ public class CamLook : MonoBehaviour
 
     void Update()
     {
-        lookInput = input.actions["Look"].ReadValue<Vector2>();
-        RotateHead();
+
     }
 
     void LateUpdate()
     {
+    }
+
+    private void FixedUpdate()
+    {
+        lookInput = input.actions["Look"].ReadValue<Vector2>();
+        RotateHead();
         MoveCamera();
+
     }
 
     void MoveCamera()
@@ -54,19 +60,19 @@ public class CamLook : MonoBehaviour
         float yawOffset = lookInput.x * -yaw;
         float pitchOffset = lookInput.y * pitch;
 
-        composer.m_ScreenX = Mathf.Lerp(composer.m_ScreenX, startX + yawOffset, Time.deltaTime * camSmooth);
-        composer.m_ScreenY = Mathf.Lerp(composer.m_ScreenY, startY + pitchOffset, Time.deltaTime * camSmooth);
+        composer.m_ScreenX = Mathf.Lerp(composer.m_ScreenX, startX + yawOffset, Time.fixedDeltaTime * camSmooth);
+        composer.m_ScreenY = Mathf.Lerp(composer.m_ScreenY, startY + pitchOffset, Time.fixedDeltaTime * camSmooth);
 
         //moves object that the camera is looking at up down left and right
         if (Vector3.Angle(virtualCam.gameObject.transform.forward, transform.forward) <= 90)
         {
-            lookAtObj.transform.localPosition = new Vector3(Mathf.Lerp(lookAtObj.transform.localPosition.x, camMoveValue * lookInput.x, Time.deltaTime),
-                Mathf.Lerp(lookAtObj.transform.localPosition.y, camMoveValue * lookInput.y, Time.deltaTime), lookAtObj.transform.localPosition.z);
+            lookAtObj.transform.localPosition = new Vector3(Mathf.Lerp(lookAtObj.transform.localPosition.x, camMoveValue * lookInput.x, Time.fixedDeltaTime),
+                Mathf.Lerp(lookAtObj.transform.localPosition.y, camMoveValue * lookInput.y, Time.fixedDeltaTime), lookAtObj.transform.localPosition.z);
         }
         else
         {
-            lookAtObj.transform.localPosition = new Vector3(Mathf.Lerp(lookAtObj.transform.localPosition.x, camMoveValue * -lookInput.x, Time.deltaTime),
-                Mathf.Lerp(lookAtObj.transform.localPosition.y, camMoveValue * lookInput.y, Time.deltaTime), lookAtObj.transform.localPosition.z);
+            lookAtObj.transform.localPosition = new Vector3(Mathf.Lerp(lookAtObj.transform.localPosition.x, camMoveValue * -lookInput.x, Time.fixedDeltaTime),
+                Mathf.Lerp(lookAtObj.transform.localPosition.y, camMoveValue * lookInput.y, Time.fixedDeltaTime), lookAtObj.transform.localPosition.z);
         }
 
 
@@ -97,6 +103,6 @@ public class CamLook : MonoBehaviour
         headTurnZ = this.GetComponent<Movement>().maxHeadTurn * lookInput.y;
 
         Quaternion headRot = Quaternion.Euler(-headTurnZ, headTurnY, 0);
-        head.transform.localRotation = Quaternion.Slerp(head.transform.localRotation, headRot, Time.deltaTime * headSmooth);
+        head.transform.localRotation = Quaternion.Lerp(head.transform.localRotation, headRot, Time.deltaTime * headSmooth);
     }
 }
