@@ -8860,7 +8860,7 @@ MonoBehaviour:
   dashCooldown: 1
   dashDec: 20
   sprintMultiplier: 1.5
-  alignSpeed: 8.5
+  alignSpeed: 6
   maxSlopeAngle: 20
   moveInput: {x: 0, y: 0}
   dash:
