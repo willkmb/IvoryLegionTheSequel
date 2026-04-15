@@ -6262,7 +6262,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1118384148}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -8811,7 +8811,7 @@ MonoBehaviour:
   intensityMultiplier: 0.5
   time: 0.15
   minImpact: 3.5
-  hapticMultiplier: 0.5
+  hapticMultiplier: 1
   DashMultiplier: 1
 --- !u!114 &1513681925
 MonoBehaviour:
@@ -8825,8 +8825,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c625c97e40001e94aa7ef84c9d936d7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wobbleFrequencyMultiplier: 2.5
-  wobbleIntensityMultiplier: 1
+  wobbleFrequencyMultiplier: 1.5
+  wobbleIntensityMultiplier: 0.5
 --- !u!114 &1513681926
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8840,10 +8840,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stateInt: 0
-  speed: 5
-  acceleration: 8
+  speed: 4.25
+  acceleration: 6.5
   baseAcceleration: 8
-  deceleration: 17
+  deceleration: 10
   angleOffset: 40
   turnSpeed: 2
   pivot: {fileID: 1118384149}
@@ -8856,11 +8856,11 @@ MonoBehaviour:
   shoulders: {fileID: 669894413}
   maxShoulderTurn: 30
   shoulderTurnSpeed: 1.5
-  duration: 0.1
-  dashMultiplier: 11
+  duration: 0.3
+  dashMultiplier: 10
   dashCooldown: 1
-  dashDec: 20
-  sprintMultiplier: 1.5
+  dashDec: 15
+  sprintMultiplier: 1.25
   alignSpeed: 6
   maxSlopeAngle: 20
   groundLayer:
@@ -8961,15 +8961,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   input: {fileID: 209000872}
   virtualCam: {fileID: 193477944}
-  yaw: 0.1
-  pitch: 0.5
-  camSmooth: 3
-  lookAtObj: {fileID: 0}
-  camMoveValue: 0
-  head: {fileID: 0}
-  headYaw: 0.1
-  headPitch: 0.5
-  headSmooth: 3
+  yaw: 0.25
+  pitch: 0.25
+  camSmooth: 1.25
+  lookAtObj: {fileID: 1118384148}
+  camMoveValue: 0.25
+  head: {fileID: 544735701}
+  headSmooth: 2
 --- !u!1 &1609907245
 GameObject:
   m_ObjectHideFlags: 0

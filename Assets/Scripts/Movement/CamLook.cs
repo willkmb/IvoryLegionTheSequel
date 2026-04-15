@@ -19,8 +19,6 @@ public class CamLook : MonoBehaviour
 
     [Header("Head Movement")]
     [SerializeField] Transform head;
-    [SerializeField] float headYaw = 0.1f;
-    [SerializeField] float headPitch = 0.5f;
     [SerializeField] float headSmooth = 3f;
 
     private Vector2 lookInput;
