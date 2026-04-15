@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -40,7 +41,9 @@ public class BodoFollowScript : MonoBehaviour
     {
         while (true)
         {
-            if(move.moveInput.magnitude > 0.1f || move.dash.triggered)
+            if (move == null) { yield return null; continue; }
+
+            if (move.moveInput.magnitude > 0.1f || move.dash.triggered)
             {
                 curAngle = Random.Range(120f, 240f); //semi circle
                 yield return new WaitForSeconds(moveRate);

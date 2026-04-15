@@ -258,7 +258,6 @@ public class Movement : MonoBehaviour
         isDashing = false;
         yield return new WaitForSeconds(1.5f);
         deceleration = curDec;
-        Debug.Log("Reseted");
     }
 
     void aligning() 
