@@ -59,9 +59,9 @@ Material:
     - _WaveSpeed: 20
     - _noise: 50.24
     - _scale: 15
-    - _wavestrength: 1.3
+    - _wavestrength: -0.68
     m_Colors:
-    - _BaseCol: {r: 0.2352941, g: 0.47635514, b: 0.6784314, a: 1}
+    - _BaseCol: {r: 0.29276434, g: 0.3944496, b: 0.4811321, a: 1}
     - _Color: {r: 0.28057137, g: 0.4621514, b: 0.6132076, a: 1}
     - _NoiseSpeed: {r: 0.1, g: 0.1, b: 0, a: 0}
     - _Tiling: {r: 20, g: 20, b: 0, a: 0}
