@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -41,6 +42,7 @@ public class Movement : MonoBehaviour
     [SerializeField] float duration = 1f;
     [SerializeField] float dashMultiplier = 3f;
     [SerializeField] float dashCooldown = 1f;
+    [SerializeField] float dashDec;
     private bool isDashing = false;
     private float dashRemaining = 0f;
     private float dashRemainingState = 0f;
@@ -50,17 +52,21 @@ public class Movement : MonoBehaviour
 
     [Header("RampAlign")]
     [SerializeField] float alignSpeed = 10f;
+    [SerializeField] float maxSlopeAngle;
     private float rayLength = 2f;
 
     private Rigidbody rb;
-    private Vector2 moveInput;
+    [HideInInspector] public Vector2 moveInput;
     private Vector3 newInput;
     private Vector3 pivotStartPos;
     private PlayerManager playerInput;
     private Vector2 preMove;
     private float turnDir;
-    private InputAction dash;
+    [HideInInspector] public InputAction dash;
     private InputAction sprint;
+    private float curDec;
+    private bool tooSteep;
+    private bool isUnwalkable;
 
     private void Awake()
     {
@@ -106,7 +112,20 @@ public class Movement : MonoBehaviour
         Vector3 curVel = rb.linearVelocity;
         Vector3 targetVel = new Vector3(newInput.x * curSpeed, rb.linearVelocity.y, newInput.z * curSpeed);
 
-        if(newInput.sqrMagnitude > 0.001f)
+        RaycastHit hit;
+        tooSteep = false;
+        isUnwalkable = false;
+
+        if(Physics.Raycast(transform.position, Vector3.down, out hit, rayLength))
+        {
+            float slopeAngle = Vector3.Angle(hit.normal, Vector3.up);
+            tooSteep = slopeAngle > maxSlopeAngle;
+            if (hit.collider.CompareTag("unwalkable")) isUnwalkable = true;
+        }
+
+        if (tooSteep || isUnwalkable) targetVel = Vector3.ProjectOnPlane(targetVel, hit.normal);
+
+        if (newInput.sqrMagnitude > 0.001f && !tooSteep && !isUnwalkable)
         {
             curVel = Vector3.MoveTowards(curVel, targetVel, acceleration * Time.fixedDeltaTime);  //if moving move current velocity towards target velocity by acceleration value
             isMoving = true;
@@ -115,7 +134,7 @@ public class Movement : MonoBehaviour
         {
             curVel = Vector3.MoveTowards(curVel, Vector3.zero, deceleration * Time.fixedDeltaTime); //if not moving move current velocity towards zero by deceleration value
             isMoving = false;
-        } 
+        }
 
         curVel.y = rb.linearVelocity.y; //reintroduce gravity
         rb.linearVelocity = curVel; //assign new velocity value to character
@@ -226,21 +245,30 @@ public class Movement : MonoBehaviour
             dashRemaining -= Time.fixedDeltaTime;
             //Vector3 dir = transform.forward * dashMultiplier;
             Vector3 dir = (newInput + transform.forward) * 0.5f * dashMultiplier; //gets midpoint of forward direction and input direction
-            rb.linearVelocity = dir; 
-            Invoke("resetDash", dashCooldown);
+            rb.linearVelocity = dir;
+            curDec = deceleration;
+            deceleration = dashDec;
+            StartCoroutine("resetDash");
         }
     }
 
-    void resetDash() { isDashing = false; }
-
-    void aligning()
+    IEnumerator resetDash() 
     {
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, rayLength))
-        {
-            Quaternion targetAlign = Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation;
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetAlign, alignSpeed * Time.deltaTime);
+        yield return new WaitForSeconds(dashCooldown);
+        isDashing = false;
+        yield return new WaitForSeconds(1.5f);
+        deceleration = curDec;
+        Debug.Log("Reseted");
+    }
+
+    void aligning() 
+    { 
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, rayLength)) 
+        { 
+            Quaternion targetAlign = Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation; 
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetAlign, alignSpeed * Time.deltaTime); 
             //acceleration = baseAcceleration * hit.normal.y; //<- experimenting with having less acceleration while going up slopes
-        }
+        } 
     }
 
     void stateUpdate()

@@ -46,20 +46,15 @@ public class CollisionManager : MonoBehaviour
             }
         }
 
-        if (move.stateInt == 1) { intensityMultiplier = 0.45f; minImpact = 2.5f;}
-        else if (move.stateInt == 2) { intensityMultiplier = 0.4f; minImpact = 3.25f;}
-        else if (move.stateInt == 3) { intensityMultiplier = 0.325f; minImpact = 3.25f;}
+        if (move.stateInt == 1) { intensityMultiplier = 0.45f; minImpact = 2.5f; }
+        else if (move.stateInt == 2) { intensityMultiplier = 0.4f; minImpact = 3.25f; }
+        else if (move.stateInt == 3) { intensityMultiplier = 0.325f; minImpact = 3.25f; }
         else { intensityMultiplier = 0.45f; minImpact = 2f; }
 
         if (Gamepad.current == null) return;
         if (dashing || collided) return;
 
-        float intensity = rb.linearVelocity.magnitude * hapticMultiplier;
-
-        if (playerInput.moveInput.magnitude > 0.1f)
-            Gamepad.current.SetMotorSpeeds(intensity / 2, intensity);
-        else
-            Gamepad.current.SetMotorSpeeds(0, 0);
+        Gamepad.current.SetMotorSpeeds(0, 0);
 
         if (playerInput.GetComponent<PlayerInput>().actions["Dash"].triggered && !dashing)
             StartCoroutine(dashHaptic());
@@ -68,20 +63,20 @@ public class CollisionManager : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         float impact = collision.relativeVelocity.magnitude;
+
+        if (collision.contacts[0].normal.y > 0.6f) return;
+        if (collision.relativeVelocity.y > -minImpact) return;
+        if (impact < minImpact) return;
+
         float intensity = intensityMultiplier * (impact / minImpact);
+        cameraShake(intensity, time);
+        colSet(impact);
 
-        if (impact >= minImpact)
+        if (impact >= 4f)
         {
-            cameraShake(intensity, time);
-
-            colSet(impact);
-
-            if (impact >= 4f)
-            {
-                Vector3 normal = collision.contacts[0].normal;
-                SquashStretch squashStretch = GetComponentInChildren<SquashStretch>();
-                squashStretch.impactDir(normal);
-            }
+            Vector3 normal = collision.contacts[0].normal;
+            SquashStretch squashStretch = GetComponentInChildren<SquashStretch>();
+            squashStretch.impactDir(normal);
         }
     }
 
