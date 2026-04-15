@@ -8,6 +8,11 @@ public class DustParticlesScript : MonoBehaviour
     [SerializeField] ParticleSystem hitParticle;
     [SerializeField] float rate = 17.5f;
     [SerializeField] float easeSpeed = 5f;
+
+    [Header("Particles Emission")]
+    [SerializeField] float walkEmission;
+    [SerializeField] float sprintEmission;
+    [SerializeField] float dashEmission;
     private float targetRate = 0f;
     private float curRate = 0f;
     private Movement move;
@@ -29,6 +34,8 @@ public class DustParticlesScript : MonoBehaviour
             ParticleSystem.EmissionModule emission = particle.emission;
             emission.rateOverTime = curRate;
         }
+
+        emissionChange();
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -42,6 +49,36 @@ public class DustParticlesScript : MonoBehaviour
         float Zaxis = Mathf.Abs(normal.z);
 
         if (Yaxis > Xaxis && Yaxis > Zaxis) hitParticle.Play();
+    }
+
+    private void emissionChange()
+    {
+        float emissionVal;
+
+        switch (move.stateInt)
+        {
+            case 3:
+                emissionVal = dashEmission;
+                break;
+
+            case 2:
+                emissionVal = sprintEmission;
+                break;
+
+            case 1:
+                emissionVal = walkEmission;
+                break;
+
+            default:
+                emissionVal = 0f;
+                break;
+        }
+
+        foreach (ParticleSystem particle in walkParticles)
+        {
+            var emission = particle.emission;
+            emission.rateOverTime = emissionVal;
+        }
     }
 }
 
