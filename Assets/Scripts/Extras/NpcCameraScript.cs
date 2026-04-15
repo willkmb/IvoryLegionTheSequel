@@ -8,6 +8,7 @@ public class NpcCameraScript : MonoBehaviour
     [Header("Active")]
     [SerializeField] GameObject player;
     [SerializeField] float dis = 10f;
+    [SerializeField] float zoom = 10f;
     [SerializeField] SpriteRenderer img;
     [SerializeField] GameObject diag;
 
@@ -54,7 +55,7 @@ public class NpcCameraScript : MonoBehaviour
             anim["DiagBoxAnimIn"].speed = 1f;
             anim.Play();
             isSpeaking = true;
-            targetFOV = 10f;
+            targetFOV = zoom;
             targetA = 0f;
         }
 
