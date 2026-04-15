@@ -386,6 +386,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1447721941}
     m_Modifications:
+    - target: {fileID: 6133301601767979896, guid: 34cf3daaf53b1ac498c345e1b0bdb1e4, type: 3}
+      propertyPath: EmissionModule.rateOverTime.scalar
+      value: 30
+      objectReference: {fileID: 0}
     - target: {fileID: 7084251800975391841, guid: 34cf3daaf53b1ac498c345e1b0bdb1e4, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.7236
@@ -774,6 +778,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1447721941}
     m_Modifications:
+    - target: {fileID: 6133301601767979896, guid: 34cf3daaf53b1ac498c345e1b0bdb1e4, type: 3}
+      propertyPath: EmissionModule.rateOverTime.scalar
+      value: 30
+      objectReference: {fileID: 0}
     - target: {fileID: 7084251800975391841, guid: 34cf3daaf53b1ac498c345e1b0bdb1e4, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.7236
@@ -1549,6 +1557,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1447721941}
     m_Modifications:
+    - target: {fileID: 6133301601767979896, guid: 34cf3daaf53b1ac498c345e1b0bdb1e4, type: 3}
+      propertyPath: EmissionModule.rateOverTime.scalar
+      value: 30
+      objectReference: {fileID: 0}
     - target: {fileID: 7084251800975391841, guid: 34cf3daaf53b1ac498c345e1b0bdb1e4, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.7236
@@ -7015,6 +7027,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1447721941}
     m_Modifications:
+    - target: {fileID: 6133301601767979896, guid: 34cf3daaf53b1ac498c345e1b0bdb1e4, type: 3}
+      propertyPath: EmissionModule.rateOverTime.scalar
+      value: 30
+      objectReference: {fileID: 0}
     - target: {fileID: 7084251800975391841, guid: 34cf3daaf53b1ac498c345e1b0bdb1e4, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.7236
