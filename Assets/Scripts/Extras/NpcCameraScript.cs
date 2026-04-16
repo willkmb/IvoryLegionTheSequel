@@ -66,7 +66,7 @@ public class NpcCameraScript : MonoBehaviour
             anim["DiagBoxAnimIn"].speed = -1f;
             anim.Play();
             isSpeaking = false;
-            targetFOV = 26.5f;
+            targetFOV = 33f;
             targetA = 6f;
         }
 

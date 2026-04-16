@@ -58,11 +58,16 @@ public class Swimming : MonoBehaviour
         }
         else
         {
-            trunk.GetComponent<Animation>().Play("TrunkDownAnim");
+            trunk.GetComponent<Animation>().Play("TrunkDown");
             rb.linearDamping = 0f;
             isSwimming = false;
             yield return new WaitForSeconds(0.35f);
             trunk.SetActive(false);
+            yield return new WaitForSeconds(0.5f);
+            bodo.GetComponent<Rigidbody>().useGravity = true;
+            bodo.transform.Find("Ring").gameObject.SetActive(false);
+            bodo.GetComponent<BodoWobble>().enabled = true;
+            bodo.GetComponent<BodoFollowScript>().setHeight = false;
         }
     }
 

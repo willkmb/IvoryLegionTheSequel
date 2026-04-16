@@ -33,7 +33,7 @@ public class BodoFollowScript : MonoBehaviour
         target = Vector3.Lerp(target, targetPoint, pointspeed * Time.fixedDeltaTime);
 
         Vector3 newPos = Vector3.Lerp(transform.position, target, speed * Time.fixedDeltaTime);
-        if(!setHeight) transform.position = new Vector3(newPos.x, transform.position.y, newPos.z);
+        if(!setHeight) transform.position = new Vector3(newPos.x, 0.276f, newPos.z);
         else transform.position = new Vector3(newPos.x, SwimmingHeight, newPos.z);
     }
 
