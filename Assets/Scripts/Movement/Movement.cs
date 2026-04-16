@@ -65,7 +65,6 @@ public class Movement : MonoBehaviour
     private float turnDir;
     [HideInInspector] public InputAction dash;
     private InputAction sprint;
-    private float curDec;
     private bool tooSteep;
     private bool isUnwalkable;
 
@@ -247,8 +246,8 @@ public class Movement : MonoBehaviour
             //Vector3 dir = transform.forward * dashMultiplier;
             Vector3 dir = (newInput + transform.forward) * 0.5f * dashMultiplier; //gets midpoint of forward direction and input direction
             rb.linearVelocity = dir;
-            curDec = deceleration;
             deceleration = dashDec;
+            this.GetComponent<CapsuleCollider>().material.dynamicFriction = 0.3f;
             StartCoroutine("resetDash");
         }
     }
@@ -257,8 +256,9 @@ public class Movement : MonoBehaviour
     {
         yield return new WaitForSeconds(dashCooldown);
         isDashing = false;
+        this.GetComponent<CapsuleCollider>().material.dynamicFriction = 0.1f;
         yield return new WaitForSeconds(1.5f);
-        deceleration = curDec;
+        deceleration = 7.5f;
     }
 
     void aligning() 

@@ -46,15 +46,13 @@ public class CollisionManager : MonoBehaviour
             }
         }
 
-        if (move.stateInt == 1) { intensityMultiplier = 0.45f; minImpact = 2.5f; }
-        else if (move.stateInt == 2) { intensityMultiplier = 0.4f; minImpact = 3.25f; }
-        else if (move.stateInt == 3) { intensityMultiplier = 0.325f; minImpact = 3.25f; }
+        if (move.stateInt == 1) { intensityMultiplier = 0.45f; minImpact = 1.5f; }
+        else if (move.stateInt == 2) { intensityMultiplier = 0.4f; minImpact = 2.25f; }
+        else if (move.stateInt == 3) { intensityMultiplier = 0.325f; minImpact = 2.95f; }
         else { intensityMultiplier = 0.45f; minImpact = 2f; }
 
         if (Gamepad.current == null) return;
-        if (dashing || collided) return;
-
-        Gamepad.current.SetMotorSpeeds(0, 0);
+        if (!dashing && !collided) Gamepad.current.SetMotorSpeeds(0, 0);
 
         if (playerInput.GetComponent<PlayerInput>().actions["Dash"].triggered && !dashing)
             StartCoroutine(dashHaptic());
@@ -63,9 +61,9 @@ public class CollisionManager : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         float impact = collision.relativeVelocity.magnitude;
-
-        if (collision.contacts[0].normal.y > 0.6f) return;
-        if (collision.relativeVelocity.y > -minImpact) return;
+        if (Mathf.Abs(collision.relativeVelocity.y) < collision.relativeVelocity.magnitude * 0.6f) return;
+        //if (collision.contacts[0].normal.y > 0.6f) return;
+        //if (collision.relativeVelocity.y > -minImpact) return;
         if (impact < minImpact) return;
 
         float intensity = intensityMultiplier * (impact / minImpact);
@@ -92,13 +90,13 @@ public class CollisionManager : MonoBehaviour
     public void colSet(float impact)
     {
         colIntensity = impact;
-        //StartCoroutine(ColHaptic());
+        StartCoroutine(ColHaptic());
     }
 
     IEnumerator dashHaptic()
     {
         dashing = true;
-        float intensity = rb.linearVelocity.magnitude * DashMultiplier;
+        float intensity = Mathf.Clamp01(rb.linearVelocity.magnitude * DashMultiplier);
         Gamepad.current.SetMotorSpeeds(intensity / 2, intensity);
         yield return new WaitForSeconds(0.15f);
         Gamepad.current.SetMotorSpeeds(0, 0);
@@ -109,7 +107,7 @@ public class CollisionManager : MonoBehaviour
     IEnumerator ColHaptic()
     {
         collided = true;
-        float intensity = rb.linearVelocity.magnitude * colIntensity;
+        float intensity = Mathf.Clamp01(rb.linearVelocity.magnitude * hapticMultiplier);
         Gamepad.current.SetMotorSpeeds(intensity / 2, intensity);
         yield return new WaitForSeconds(0.15f);
         Gamepad.current.SetMotorSpeeds(0, 0);
